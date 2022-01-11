@@ -67,7 +67,7 @@ jobs:
 
       - name: Build and push docker image (fastapi)
         run: |
-          cd ./server
+          cd ./${{ secrets.WEB_APP_NAME }}/server
           IMAGE_NAME=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.WEB_APP_NAME }}-fastapi-image:latest
           echo "building image $IMAGE_NAME"
           docker image build -t $IMAGE_NAME .
