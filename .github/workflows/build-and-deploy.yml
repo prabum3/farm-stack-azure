@@ -1,6 +1,7 @@
 name: build and deploy
 on:
-  push:
+  workflow_dispatch:
+  # push:
 
 jobs:
   deploy:

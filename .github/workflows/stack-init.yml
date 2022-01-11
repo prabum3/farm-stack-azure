@@ -25,6 +25,8 @@ jobs:
         run: |
           pip install cookiecutter
           cookiecutter --no-input gh:prabum3/farm-stack-template --checkout users/prabum3/add-stack  project_slug=${{ secrets.WEB_APP_NAME }} container_registry=${{ secrets.AZURE_CONTAINER_REGISTRY }}
+          cd {{ secrets.WEB_APP_NAME }}
+          ls
 
       # - name: Configure git
       #   run: |
