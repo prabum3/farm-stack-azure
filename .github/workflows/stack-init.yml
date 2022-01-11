@@ -1,0 +1,106 @@
+name: "Setup and deploy a nodejs site to Azure App service"
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  stack-initialization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: use node.js v14
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: use python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+
+      - name: Stacks framework code generation
+        run: |
+          pip install cookiecutter
+          cookiecutter --no-input gh:prabum3/farm-stack-template --checkout users/prabum3/add-stack  project_slug=${{ secrets.WEB_APP_NAME }} container_registry=${{ secrets.AZURE_CONTAINER_REGISTRY }}
+
+      # - name: Configure git
+      #   run: |
+      #     git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      #     git config --global user.name "${{ github.actor }}"
+      #     git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      # - name: Commit generated code and initialize workflows
+      #   run: |
+      #     appName="${{ github.event.inputs.AZURE_APP_NAME }}"
+      #     echo "$appName" > appname
+      #     git add .
+      #     git commit -m "Generate framework code and initialize workflows"
+      #     git push
+      #     # We cant push to main since its protected in this stack
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login into container registry
+        run: |
+          az acr login --name ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+
+      - name: Build React App
+        run: |
+          cd ./${{ secrets.WEB_APP_NAME }}/client
+          npm install
+          npm run build
+
+      - name: Build and push docker image (nginx-reverse-proxy)
+        run: |
+          cd ./${{ secrets.WEB_APP_NAME }}/nginx/production
+          IMAGE_NAME=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.WEB_APP_NAME }}-nginx-react-image:latest
+          echo "building image $IMAGE_NAME"
+          docker image build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+
+      - name: Build and push docker image (fastapi)
+        run: |
+          cd ./server
+          IMAGE_NAME=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.WEB_APP_NAME }}-fastapi-image:latest
+          echo "building image $IMAGE_NAME"
+          docker image build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+
+      - name: Set connection string
+        run: |
+          az webapp config appsettings set -g ${{ secrets.RESOURCE_GROUP_NAME }} -n ${{ secrets.WEB_APP_NAME }} --settings MONGODB_URL="${{ secrets.MONGODB_URL }}"
+
+      - name: Deploy with docker-compose
+        run: |
+          az webapp config container set --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.WEB_APP_NAME }} --multicontainer-config-type compose --multicontainer-config-file docker-compose.yml
+
+      # - name: Website URL
+      #   run: |
+      #     echo "Website URL: https://${{ github.event.inputs.AZURE_APP_NAME }}.azurewebsites.net"
+
+      # - name: Wait for website to come online
+      #   env:
+      #       AZURE_APP_NAME: ${{ github.event.inputs.AZURE_APP_NAME }}
+      #   timeout-minutes: 5
+      #   id: get-url
+      #   run: |
+      #     echo "Waiting for the website to come alive..."
+      #     URL="https://${{ env.AZURE_APP_NAME }}.azurewebsites.net"
+      #     sleep 20
+      #     STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" $URL)
+      #     echo "STATUSCODE: $STATUS_CODE"
+      #     while [ $STATUS_CODE -ne 200 ]
+      #     do
+      #       sleep 10
+      #       STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" $URL)
+      #     echo "STATUSCODE: $STATUS_CODE"
+      #     done
+      #     echo "Website is up and running..."
+      #     echo "Browse here: $URL"
+      #     echo "::set-output name=your_site::$URL"
