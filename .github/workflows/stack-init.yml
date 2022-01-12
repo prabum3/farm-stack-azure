@@ -2,7 +2,7 @@ name: "Setup and deploy farm stack on azure"
 
 on:
   workflow_dispatch:
-  push:
+  # push:
 
 jobs:
   stack-initialization:
@@ -31,20 +31,17 @@ jobs:
           mv -v ./${{ secrets.WEB_APP_NAME }}/*  .
           rm -rf ./${{ secrets.WEB_APP_NAME }}
 
-      # - name: Configure git
-      #   run: |
-      #     git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      #     git config --global user.name "${{ github.actor }}"
-      #     git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      - name: Configure git
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
-      # - name: Commit generated code and initialize workflows
-      #   run: |
-      #     appName="${{ github.event.inputs.AZURE_APP_NAME }}"
-      #     echo "$appName" > appname
-      #     git add .
-      #     git commit -m "Generate framework code and initialize workflows"
-      #     git push
-      #     # We cant push to main since its protected in this stack
+      - name: Commit generated code and initialize workflows
+        run: |
+          git add .
+          git commit -m "Generate framework code and initialize workflows"
+          git push
 
       - name: Azure login
         uses: azure/login@v1

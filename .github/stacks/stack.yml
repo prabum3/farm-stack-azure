@@ -1,0 +1,65 @@
+version: 0.1.0
+
+name: A stack to deploy FARM Stack Website on Azure
+description: A stack to deploy FARM Stack Website on Azure
+
+branding:
+  icon: 'cloud'
+  color: 'blue'
+
+inputs:
+
+  - name: WEB_APP_NAME
+    description: Enter the name of the Azure App which has been configured to host the website
+    is-secret: true
+    required: true
+
+  - name: AZURE_CREDENTIALS
+    description: Azure Credentials scoped to your Subscription/Resource Group
+    is-secret: true
+    required: true
+
+  - name: AZURE_CONTAINER_REGISTRY
+    description: Login server of your container registry (example - contoso.azurecr.io)
+    is-secret: true
+    required: true
+
+  - name: RESOURCE_GROUP_NAME
+    description: Resource group under which your web app is provisioned
+    is-secret: true
+    required: true
+
+  - name: MONGODB_URL
+    description: MongoDB Connection Secret
+    is-secret: true
+    required: true
+
+
+configs:
+   repo-metadata:
+      parameters:
+        description: 'FARM Stack Website deployed on Azure'
+        secrets:
+          - name: WEB_APP_NAME
+            value: ${{inputs.WEB_APP_NAME}}
+
+          - name: AZURE_CREDENTIALS
+            value: ${{inputs.AZURE_CREDENTIALS}}
+
+          - name: AZURE_CONTAINER_REGISTRY
+            value: ${{inputs.AZURE_CONTAINER_REGISTRY}}
+
+          - name: RESOURCE_GROUP_NAME
+            value: ${{inputs.RESOURCE_GROUP_NAME}}
+
+          - name:  MONGODB_URL
+            value: ${{inputs. MONGODB_URL}}
+        topics:
+        - fastapi
+        - react
+        - mongodb
+        - docker
+        - azure
+
+init:
+ uses: "stack-init.yml"
