@@ -25,7 +25,11 @@ jobs:
         run: |
           pip install cookiecutter
           cookiecutter --no-input gh:prabum3/farm-stack-template --checkout users/prabum3/add-stack  project_slug=${{ secrets.WEB_APP_NAME }} container_registry=${{ secrets.AZURE_CONTAINER_REGISTRY }}
-          ls 
+
+      - name: Reorganize files
+        run: |
+          mv -v ./{{ secrets.WEB_APP_NAME }}/*  .
+          rm -rf ./{{ secrets.WEB_APP_NAME }}
 
       # - name: Configure git
       #   run: |
@@ -53,13 +57,13 @@ jobs:
 
       - name: Build React App
         run: |
-          cd ./${{ secrets.WEB_APP_NAME }}/client
+          cd ./client
           npm install
           npm run build
 
       - name: Build and push docker image (nginx-reverse-proxy)
         run: |
-          cd ./${{ secrets.WEB_APP_NAME }}/nginx/production
+          cd ./nginx/production
           IMAGE_NAME=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.WEB_APP_NAME }}-nginx-react-image:latest
           echo "building image $IMAGE_NAME"
           docker image build -t $IMAGE_NAME .
@@ -79,31 +83,7 @@ jobs:
 
       - name: Deploy with docker-compose
         run: |
-          cd ./${{ secrets.WEB_APP_NAME }}
           az webapp config container set --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.WEB_APP_NAME }} --docker-registry-server-url https://${{ secrets.AZURE_CONTAINER_REGISTRY }}
           az webapp config container set --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.WEB_APP_NAME }} --multicontainer-config-type compose --multicontainer-config-file docker-compose.yml
 
-      # - name: Website URL
-      #   run: |
-      #     echo "Website URL: https://${{ github.event.inputs.AZURE_APP_NAME }}.azurewebsites.net"
 
-      # - name: Wait for website to come online
-      #   env:
-      #       AZURE_APP_NAME: ${{ github.event.inputs.AZURE_APP_NAME }}
-      #   timeout-minutes: 5
-      #   id: get-url
-      #   run: |
-      #     echo "Waiting for the website to come alive..."
-      #     URL="https://${{ env.AZURE_APP_NAME }}.azurewebsites.net"
-      #     sleep 20
-      #     STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" $URL)
-      #     echo "STATUSCODE: $STATUS_CODE"
-      #     while [ $STATUS_CODE -ne 200 ]
-      #     do
-      #       sleep 10
-      #       STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\n" $URL)
-      #     echo "STATUSCODE: $STATUS_CODE"
-      #     done
-      #     echo "Website is up and running..."
-      #     echo "Browse here: $URL"
-      #     echo "::set-output name=your_site::$URL"
