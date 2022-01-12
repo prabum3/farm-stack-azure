@@ -2,7 +2,6 @@ name: "Setup and deploy farm stack on azure"
 
 on:
   workflow_dispatch:
-  # push:
 
 jobs:
   stack-initialization:
@@ -24,7 +23,7 @@ jobs:
       - name: Stacks framework code generation
         run: |
           pip install cookiecutter
-          cookiecutter --no-input gh:prabum3/farm-stack-template --checkout users/prabum3/add-stack  project_slug=${{ secrets.WEB_APP_NAME }} container_registry=${{ secrets.AZURE_CONTAINER_REGISTRY }}
+          cookiecutter --no-input gh:prabum3/farm-stack-template project_slug=${{ secrets.WEB_APP_NAME }} container_registry=${{ secrets.AZURE_CONTAINER_REGISTRY }}
 
       - name: Reorganize files
         run: |
