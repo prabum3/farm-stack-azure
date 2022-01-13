@@ -39,5 +39,16 @@ More detailed documentation can be found [here](https://docs.microsoft.com/en-us
 
 **Your app would be hosted at https://<azure_app_name>.azurewebsites.net**
 
+ ## Local Development
+
+ You can get started with your project locally by running the command
+
+ ```bash
+   docker compose -f docker-compose-local.yml up --build -d  
+ ```
+
+ This sets up the website at port:5000
+ 
+
 
 
