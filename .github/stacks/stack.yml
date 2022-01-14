@@ -53,7 +53,7 @@ configs:
             value: ${{inputs.RESOURCE_GROUP_NAME}}
 
           - name:  MONGODB_URL
-            value: ${{inputs. MONGODB_URL}}
+            value: ${{inputs.MONGODB_URL}}
         topics:
         - fastapi
         - react
