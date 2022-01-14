@@ -55,5 +55,5 @@ jobs:
 
   deploy:
     needs: stack-initialization
-    uses: ./.github/workflows/build-and-deploy.yml@test-reusable-workflows
+    uses: ${{ github.actor }}/${{ github.repository }}/.github/workflows/build-and-deploy.yml@test-reusable-workflows
 
