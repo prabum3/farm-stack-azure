@@ -55,5 +55,5 @@ jobs:
 
   deploy:
     needs: stack-initialization
-    uses: ./.github/build-and-deploy.yml
+    uses: ./.github/build-and-deploy.yml@test-reusable-workflows
 
