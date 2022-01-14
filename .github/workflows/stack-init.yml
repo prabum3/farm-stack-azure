@@ -1,0 +1,85 @@
+name: "Setup and deploy farm stack on azure"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  stack-initialization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: use node.js v14
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: use python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+
+      - name: Stacks framework code generation
+        run: |
+          pip install cookiecutter
+          cookiecutter --no-input gh:prabum3/farm-stack-template project_slug=${{ secrets.WEB_APP_NAME }} container_registry=${{ secrets.AZURE_CONTAINER_REGISTRY }}
+
+      - name: Reorganize files
+        run: |
+          mv -v ./${{ secrets.WEB_APP_NAME }}/*  .
+          rm -rf ./${{ secrets.WEB_APP_NAME }}
+
+      - name: Configure git
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Commit generated code and initialize workflows
+        run: |
+          git add .
+          git commit -m "Generate framework code and initialize workflows"
+          git push
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login into container registry
+        run: |
+          az acr login --name ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+
+      - name: Build React App
+        run: |
+          cd ./client
+          npm install
+          npm run build
+
+      - name: Build and push docker image (nginx-reverse-proxy)
+        run: |
+          cd ./nginx/production
+          IMAGE_NAME=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.WEB_APP_NAME }}-nginx-react-image:latest
+          echo "building image $IMAGE_NAME"
+          docker image build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+
+      - name: Build and push docker image (fastapi)
+        run: |
+          cd ./server
+          IMAGE_NAME=${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.WEB_APP_NAME }}-fastapi-image:latest
+          echo "building image $IMAGE_NAME"
+          docker image build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+
+      - name: Set connection string
+        run: |
+          az webapp config appsettings set -g ${{ secrets.RESOURCE_GROUP_NAME }} -n ${{ secrets.WEB_APP_NAME }} --settings MONGODB_URL="${{ secrets.MONGODB_URL }}"
+
+      - name: Deploy with docker-compose
+        run: |
+          az webapp config container set --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.WEB_APP_NAME }} --docker-registry-server-url https://${{ secrets.AZURE_CONTAINER_REGISTRY }}
+          az webapp config container set --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.WEB_APP_NAME }} --multicontainer-config-type compose --multicontainer-config-file docker-compose.yml
+
+
