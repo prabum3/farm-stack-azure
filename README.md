@@ -1,4 +1,4 @@
-## FARM Stack on Azure 🧑‍🌾
+# FARM Stack on Azure 🧑‍🌾
 
 Use this stack to deploy react website connected with a fastapi backend on Azure Web App
 
@@ -6,19 +6,19 @@ Use this stack to deploy react website connected with a fastapi backend on Azure
 
 - React app generated with `create-react-app` coupled with tailwindcss 🌟
 - FastApi server with `motor` for db connections 🚀
-- Deployed with a nginx reverse proxy 
+- Deployed with a nginx reverse proxy
 - Docker-compose file for local development
 
 ## Prerequisites
 
-You would require 
+You would require
  - Azure Webapp configured to work with a Docker Container
  - Azure Container Registry to store container images
  - MongoDB for all your DB needs
 
 ## Required Inputs
 
-- Web App Name: Name of the app that you have provisioned on Azure. 
+- Web App Name: Name of the app that you have provisioned on Azure.
 (Note that this should be configured for Docker deploy)
 <img width="738" alt="Screenshot 2022-01-12 at 7 01 56 PM" src="https://user-images.githubusercontent.com/39593587/149175613-6bc8cdf0-1835-41b4-8cd3-3164e7f9bc06.png">
 
@@ -44,8 +44,8 @@ More detailed documentation can be found [here](https://docs.microsoft.com/en-us
  You can get started with your project locally by running the command
 
  ```bash
-   docker compose -f docker-compose-local.yml up --build -d  
+   docker compose -f docker-compose-local.yml up --build -d
  ```
 
  This sets up the website at port:5000
- 
+
