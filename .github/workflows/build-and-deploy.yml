@@ -3,6 +3,15 @@ name: "Build and deploy farm stack on azure"
 on:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      AZURE_CONTAINER_REGISTRY:
+        required: true
+      WEB_APP_NAME:
+        required: true
+      RESOURCE_GROUP_NAME:
+        required: true
   push:
     branches: [ main ]
 

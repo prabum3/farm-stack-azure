@@ -56,4 +56,10 @@ jobs:
   deploy:
     needs: stack-initialization
     uses: prabum3/farm-stack-azure/.github/workflows/build-and-deploy.yml@test-reusable-workflows
+    secrets:
+      AZURE_CREDENTIALS:  ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      WEB_APP_NAME: ${{ secrets.WEB_APP_NAME }}
+      RESOURCE_GROUP_NAME: ${{ secrets.RESOURCE_GROUP_NAME }}
+
 
