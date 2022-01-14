@@ -2,6 +2,7 @@ name: "Build and deploy farm stack on azure"
 
 on:
   workflow_dispatch:
+  workflow_call:
   push:
     branches: [ main ]
 
