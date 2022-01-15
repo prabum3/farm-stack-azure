@@ -1,5 +1,7 @@
 # FARM Stack on Azure 🧑‍🌾
 
+[![Use this template](https://github.com/stack-instance/badge.svg)](https://github.com/stack-instance?stack_template_owner=prabum3&stack_template_repo=farm-stack-azure)
+                
 Use this stack to deploy react website connected with a fastapi backend on Azure Web App
 
 ## What's in this Stack ?
