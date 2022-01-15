@@ -34,7 +34,7 @@ You would require
 This can be done by running the Azure cli command
 
 ```bash
-az ad sp create-for-rbac --name "GHActions" --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} -sdk-auth
+az ad sp create-for-rbac --name "GHActions" --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} --sdk-auth
 
 ```
 More detailed documentation can be found [here](https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#use-the-azure-login-action-with-a-service-principal-secret)
